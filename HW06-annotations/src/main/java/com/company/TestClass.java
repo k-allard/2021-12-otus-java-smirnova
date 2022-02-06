@@ -7,7 +7,7 @@ import com.company.annotations.Test;
 public class TestClass {
     @Before
     public void init() {
-        System.out.println("Before init() method called");
+        System.out.println("@Before init() method called");
     }
 
     @Test
@@ -27,6 +27,6 @@ public class TestClass {
 
     @After
     public void cleanUp() {
-        System.out.println("After cleanUp() method called");
+        System.out.println("@After cleanUp() method called");
     }
 }
