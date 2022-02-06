@@ -8,8 +8,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -21,96 +19,62 @@ import java.util.stream.Collectors;
 public class MyJUnit {
 
     public static void launch(Class<?> testClass) {
-//        boolean beforeMethodPerformed = false;
         int failedTests = 0;
         int successTests = 0;
 
-        Method[] methods = testClass.getMethods();
-        Map<Boolean, List<Method>> testMethodsMap =
-                Arrays.stream(methods).collect(
-                        Collectors.partitioningBy(
-                                method -> method.getClass().isAnnotationPresent(Test.class)
-//                                        && Modifier.isPublic(method.getModifiers())
-                        )
-                );
+        List<Method> allPublicMethods = Arrays.stream(testClass.getMethods())
+                .filter(method -> Modifier.isPublic(method.getModifiers())).toList();
 
-        List<Method> notTestMethods = testMethodsMap.get(false);
-        List<Method> beforeMethods = notTestMethods.stream()
-                .filter(method -> method.getClass().isAnnotationPresent(Before.class)
-                        && Modifier.isPublic(method.getModifiers())
-                )
-                .collect(Collectors.toList());
+        List<Method> testMethods = allPublicMethods.stream()
+                .filter(method -> method.isAnnotationPresent(Test.class)).toList();
 
-        List<Method> afterMethods = notTestMethods.stream()
-                .filter(method -> method.getClass().isAnnotationPresent(After.class)
-                        && Modifier.isPublic(method.getModifiers())
-                )
-                .collect(Collectors.toList());
+        List<Method> beforeMethods = allPublicMethods.stream()
+                .filter(method -> method.isAnnotationPresent(Before.class)).toList();
 
-        for (Method beforeMethod : beforeMethods) {
-            performBeforeOrAfterMethod(beforeMethod, testClass);
-        }
+        List<Method> afterMethods = allPublicMethods.stream()
+                .filter(method -> method.isAnnotationPresent(After.class)).toList();
 
-        for (Method testMethod : testMethodsMap.get(true)) {
-            try {
-                performTestMethod(testMethod, testClass);
-                successTests++;
-            } catch (InvocationTargetException e) {
-                System.err.println(e.getCause().getMessage());
-                failedTests++;
+        try {
+            Object testClassInstance = testClass.getDeclaredConstructor().newInstance();
+
+            for (Method beforeMethod : beforeMethods) {
+                performBeforeOrAfterMethod(beforeMethod, testClassInstance);
             }
+            for (Method testMethod : testMethods) {
+                try {
+                    performTestMethod(testMethod, testClassInstance);
+                    successTests++;
+                } catch (InvocationTargetException e) {
+                    System.out.println(e.getCause().getMessage());
+                    failedTests++;
+                }
+            }
+            for (Method afterMethod : afterMethods) {
+                performBeforeOrAfterMethod(afterMethod, testClassInstance);
+            }
+        } catch (InstantiationException | IllegalAccessException |
+                InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
         }
 
-        for (Method afterMethod : afterMethods) {
-            performBeforeOrAfterMethod(afterMethod, testClass);
-        }
 
-
-
-
-//        Map<Boolean, List<Method>> testMethodsMap =
-//                Arrays.stream(methods).collect(Collectors.partitioningBy(method -> method.getClass().isAnnotationPresent(Test.class)));
-//
-//        Map<Boolean, List<Method>> afterMethodsMap =
-//                Arrays.stream(methods).collect(Collectors.partitioningBy(method -> method.getClass().isAnnotationPresent(After.class)));
-//
-//        for (Method method : methods) {
-//            if (!beforeMethodPerformed && method.isAnnotationPresent(Before.class)) {
-//                performBeforeOrAfterMethod(method, testClass);
-//                beforeMethodPerformed = true;
-//                continue;
-//            }
-//            if (method.isAnnotationPresent(Test.class)) {
-//                try {
-//                    performTestMethod(method, testClass);
-//                    successTests++;
-//                } catch (InvocationTargetException e) {
-//                    System.err.println(e.getCause().getMessage());
-//                    failedTests++;
-//                }
-//                continue;
-//            }
-//            if (method.isAnnotationPresent(After.class)) {
-//                performBeforeOrAfterMethod(method, testClass);
-//            }
-//        }
         System.out.println("_________________________");
         System.out.println("Success tests number: [" + successTests + "]");
         System.out.println("Failed tests number: [" + failedTests + "]");
     }
 
-    private static void performTestMethod(Method method, Class<?> testClass) throws InvocationTargetException {
+    private static void performTestMethod(Method method, Object testClass) throws InvocationTargetException {
         try {
-            method.invoke(testClass.getDeclaredConstructor().newInstance());
-        } catch (IllegalAccessException | NoSuchMethodException | InstantiationException e) {
+            method.invoke(testClass);
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
     }
 
-    private static void performBeforeOrAfterMethod(Method method, Class<?> testClass)  {
+    private static void performBeforeOrAfterMethod(Method method, Object testClass)  {
         try {
-            method.invoke(testClass.getDeclaredConstructor().newInstance());
-        } catch (IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
+            method.invoke(testClass);
+        } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
     }
