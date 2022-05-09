@@ -1,11 +1,9 @@
 package ru.otus.jdbc.mapper;
 
 import ru.otus.core.repository.DataTemplate;
-import ru.otus.core.repository.DataTemplateException;
 import ru.otus.core.repository.executor.DbExecutor;
 
 import java.sql.Connection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,13 +32,7 @@ public class DataTemplateJdbc<T> implements DataTemplate<T> {
 
     @Override
     public long insert(Connection connection, T client) {
-        try {
-            String sql = entitySQLMetaData.getInsertSql();
-            return dbExecutor.executeStatement(connection, sql,
-                    Collections.emptyList());
-        } catch (Exception e) {
-            throw new DataTemplateException(e);
-        }
+        throw new UnsupportedOperationException();
     }
 
     @Override

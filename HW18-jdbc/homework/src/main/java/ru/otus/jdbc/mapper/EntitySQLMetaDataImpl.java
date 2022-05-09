@@ -1,12 +1,6 @@
 package ru.otus.jdbc.mapper;
 
-public class EntitySQLMetaDataImpl<T> implements EntitySQLMetaData {
-
-    private final EntityClassMetaData<T> entityClassMetaData;
-
-    public EntitySQLMetaDataImpl(EntityClassMetaData<T> entityClassMetaData) {
-        this.entityClassMetaData = entityClassMetaData;
-    }
+public class EntitySQLMetaDataImpl implements EntitySQLMetaData {
 
     @Override
     public String getSelectAllSql() {
