@@ -1,5 +1,6 @@
 package ru.calculator;
 
+
 /*
 -Xms256m
 -Xmx256m
@@ -14,12 +15,11 @@ import java.time.LocalDateTime;
 
 public class CalcDemo {
     public static void main(String[] args) {
-        long counter = 100_000_000;
+        int counter = 100_000_000;
         var summator = new Summator();
         long startTime = System.currentTimeMillis();
-        var data = new Data();
-
-        for (var idx = 0; idx < counter; idx++) {
+        Data data = new Data();
+        for (int idx = 0; idx < counter; idx++) {
             data.setValue(idx);
             summator.calc(data);
 
