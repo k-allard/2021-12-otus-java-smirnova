@@ -36,3 +36,6 @@ out
 *.iws
 *.ipr
 *.idea
+
+#logs
+logs/
