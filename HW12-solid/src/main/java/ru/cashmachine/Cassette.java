@@ -1,6 +1,10 @@
 package ru.cashmachine;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Cassette {
+
     private final Denomination denomination;
 
     private long amountOfBills;
@@ -24,6 +28,6 @@ public class Cassette {
 
     void removeBills(long amount) {
         amountOfBills -= amount;
-        System.out.printf("\"%d\" bills of \"%d\" USD each successfully withdrawn.%n", amount, denomination.getBillValue());
+        log.info("{} bills of {} USD each successfully withdrawn", amount, denomination.getBillValue());
     }
 }

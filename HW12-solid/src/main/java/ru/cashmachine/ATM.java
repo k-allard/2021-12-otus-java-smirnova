@@ -1,11 +1,14 @@
 package ru.cashmachine;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class ATM {
 
     private final LinkedList<Cassette> cassettes;
@@ -30,12 +33,12 @@ public class ATM {
                 break;
             }
         }
-        System.out.printf("%d USD successfully deposited.%n", amountOfBills * denomination.getBillValue());
+        log.info("{} USD successfully deposited", amountOfBills * denomination.getBillValue());
     }
 
     void withdrawCash(int amountToWithdraw) {
         if (amountToWithdraw > getCashBalance()) {
-            System.out.printf("%d USD cannot be withdrawn. Not enough cash in the ATM!%n", amountToWithdraw);
+            log.error("{} USD cannot be withdrawn. Not enough cash in the ATM!", amountToWithdraw);
             return;
         }
 
@@ -53,7 +56,7 @@ public class ATM {
                 allBillsInATM.add(cassette.getDenominationValue());
             }
         }
-        System.out.println("All bills in the ATM: " + allBillsInATM);
+        log.debug("All bills in the ATM: " + allBillsInATM);
         return allBillsInATM;
     }
 
@@ -61,10 +64,10 @@ public class ATM {
         ArrayList<Integer> resultCombination = new ArrayList<>();
         sum_up_recursive(getAllBillsInATM(), targetSum, new ArrayList<>(), resultCombination);
         if (resultCombination.isEmpty()) {
-            System.out.printf("Amount of \"%d\" USD is NOT possible to withdraw.%n", targetSum);
+            log.error("Amount of {} USD is NOT possible to withdraw", targetSum);
         } else {
-            System.out.printf("Amount of \"%d\" USD is POSSIBLE to withdraw.%n", targetSum);
-            System.out.println("Possible combination of bills is: " + resultCombination);
+            log.debug("Amount of {} USD is POSSIBLE to withdraw", targetSum);
+            log.debug("Possible combination of bills is: " + resultCombination);
         }
         return resultCombination;
     }
@@ -73,15 +76,11 @@ public class ATM {
         Map<Integer, Long> billAmountMap = listOfBillsToWithdraw.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-        System.out.println("How many bills of each denomination need to be withdrawn: " + billAmountMap);
-
         for (Cassette cassette : cassettes) {
             if (billAmountMap.containsKey(cassette.getDenominationValue())) {
                 cassette.removeBills(billAmountMap.get(cassette.getDenominationValue()));
             }
         }
-
-        System.out.println("Cash successfully withdrawn from the ATM!");
     }
 
     private boolean sum_up_recursive(ArrayList<Integer> numbers, int target, ArrayList<Integer> partial, ArrayList<Integer> result) {
