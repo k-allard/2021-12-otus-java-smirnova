@@ -64,7 +64,7 @@ public class ATM {
             System.out.printf("Amount of \"%d\" USD is NOT possible to withdraw.%n", targetSum);
         } else {
             System.out.printf("Amount of \"%d\" USD is POSSIBLE to withdraw.%n", targetSum);
-            System.out.println("First found possible combination is: " + resultCombination);
+            System.out.println("Possible combination of bills is: " + resultCombination);
         }
         return resultCombination;
     }
