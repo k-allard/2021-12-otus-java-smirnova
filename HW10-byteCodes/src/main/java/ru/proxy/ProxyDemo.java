@@ -8,6 +8,3 @@ public class ProxyDemo {
         myClass.calculation(1, 5, "Note");
     }
 }
-
-
-
