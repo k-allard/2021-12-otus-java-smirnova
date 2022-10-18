@@ -4,21 +4,22 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class ATM {
+public class ATM implements ATMInterface {
 
-    private final LinkedList<Cassette> cassettes;
+    private final List<Cassette> cassettes;
 
-    ATM() {
+    public ATM() {
         CassettesFactory cassettesFactory = new CassettesFactory();
         cassettes = cassettesFactory.createCassettes();
     }
 
-    int getCashBalance() {
+    public int getCashBalance() {
         int balance = 0;
         for (Cassette cassette : cassettes) {
             balance += (cassette.getAmountOfBills() * cassette.getDenominationValue());
@@ -26,7 +27,7 @@ public class ATM {
         return balance;
     }
 
-    void depositCash(int amountOfBills, Denomination denomination) {
+    public void depositCash(int amountOfBills, Denomination denomination) {
         for (Cassette cassette : cassettes) {
             if (cassette.getDenominationValue() == denomination.getBillValue()) {
                 cassette.addBills(amountOfBills);
@@ -36,7 +37,7 @@ public class ATM {
         log.info("{} USD successfully deposited", amountOfBills * denomination.getBillValue());
     }
 
-    void withdrawCash(int amountToWithdraw) {
+    public void withdrawCash(int amountToWithdraw) {
         if (amountToWithdraw > getCashBalance()) {
             log.error("{} USD cannot be withdrawn. Not enough cash in the ATM!", amountToWithdraw);
             return;
@@ -83,16 +84,18 @@ public class ATM {
         }
     }
 
-    private boolean sum_up_recursive(ArrayList<Integer> numbers, int target, ArrayList<Integer> partial, ArrayList<Integer> result) {
-        int s = 0;
+    private boolean sum_up_recursive(
+            ArrayList<Integer> numbers, int target, ArrayList<Integer> partial, ArrayList<Integer> result
+    ) {
+        int current_sum = 0;
         for (int x : partial) {
-            s += x;
+            current_sum += x;
         }
-        if (s == target) {
+        if (current_sum == target) {
             result.addAll(partial);
             return false;
         }
-        if (s >= target) {
+        if (current_sum >= target) {
             return true;
         }
         for (int i = 0; i < numbers.size(); i++) {
