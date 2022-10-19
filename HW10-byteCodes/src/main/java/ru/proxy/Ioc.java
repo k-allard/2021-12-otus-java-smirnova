@@ -29,29 +29,33 @@ class Ioc {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (annotatedMethods.contains(method)) {
-                System.out.println("invoking method: [" + method + "]");
-                System.out.println("params: " + Arrays.toString(args));
+            if (ifLogEnabled(method)) {
+                System.out.println("MY_LOGGER: invoking method [" + method.getName() + "] with params " + Arrays.toString(args));
             }
             return method.invoke(myClass, args);
         }
 
-        @Override
-        public String toString() {
-            return "DemoInvocationHandler{" +
-                    "myClass=" + myClass +
-                    '}';
+        private boolean ifLogEnabled(Method method) {
+            boolean ifLogForMethodEnabled = false;
+            for (Method annotatedMethod : annotatedMethods) {
+                if (annotatedMethod.getName().equals(method.getName()) &&
+                        annotatedMethod.getReturnType() == method.getReturnType() &&
+                        Arrays.equals(annotatedMethod.getParameterTypes(), method.getParameterTypes())
+                ) {
+                    ifLogForMethodEnabled = true;
+                    break;
+                }
+            }
+            return ifLogForMethodEnabled;
         }
 
         private List<Method> getMethodsAnnotatedWithLog() {
             final List<Method> methods = new ArrayList<>();
-            Class<?>[] interfaces = myClass.getClass().getInterfaces();
+            Class<?> clazz = myClass.getClass();
 
-            for (final Class<?> clazz : interfaces ){
-                for (final Method method : clazz.getDeclaredMethods()) {
-                    if (method.isAnnotationPresent(Log.class)) {
-                        methods.add(method);
-                    }
+            for (final Method method : clazz.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(Log.class)) {
+                    methods.add(method);
                 }
             }
             return methods;
