@@ -5,6 +5,7 @@ public class ProxyDemo {
         TestLoggingInterface myClass = Ioc.createMyClass();
         myClass.calculation(5);
         myClass.calculation(4, 8);
+        myClass.calculation(1, 7);
         myClass.calculation(1, 5, "Note");
     }
 }
