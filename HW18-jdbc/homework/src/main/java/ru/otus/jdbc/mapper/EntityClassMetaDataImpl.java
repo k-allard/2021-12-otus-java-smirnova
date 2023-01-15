@@ -16,7 +16,7 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
 
     private final List<Field> fieldsWithoutId;
 
-    private Constructor<T> constructor;
+    private final Constructor<T> constructor;
 
     public EntityClassMetaDataImpl(Class<T> clazz) {
         allFields = List.of(clazz.getDeclaredFields());
@@ -32,14 +32,7 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
                 .filter(field -> !field.isAnnotationPresent(Id.class))
                 .collect(Collectors.toList());
 
-        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            if (constructor.getParameterTypes().length == allFields.size()) {
-                this.constructor = (Constructor<T>) constructor;
-                break;
-            }
-        }
-        if (constructor == null)
-            throw new RuntimeException("All args constructor not found");
+        constructor = getNoArgsConstructor(clazz);
     }
 
     @Override
@@ -65,5 +58,13 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
     @Override
     public List<Field> getFieldsWithoutId() {
         return fieldsWithoutId;
+    }
+
+    private Constructor<T> getNoArgsConstructor(Class<T> clazz) {
+        try {
+            return clazz.getConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("No args constructor not found");
+        }
     }
 }

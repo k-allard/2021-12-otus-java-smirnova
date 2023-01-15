@@ -87,17 +87,20 @@ public class DataTemplateJdbc<T> implements DataTemplate<T> {
     }
 
     private T createEntity(ResultSet rs) throws SQLException {
-        T entity;
         try {
-            Object[] args = new Object[entityClassMetaData.getAllFields().size()];
-            for (int i = 0; i < args.length; i++) {
-                args[i] = rs.getObject(entityClassMetaData.getAllFields().get(i).getName());
+            T entity = entityClassMetaData.getConstructor().newInstance();
+            Class<?> clazz = entity.getClass();
+            for (Field field : entityClassMetaData.getAllFields()) {
+                String fieldName = field.getName();
+                Field declaredField = clazz.getDeclaredField(fieldName);
+                var fieldValue = rs.getObject(fieldName);
+                declaredField.setAccessible(true);
+                declaredField.set(entity, fieldValue);
             }
-            entity = entityClassMetaData.getConstructor().newInstance(args);
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            return entity;
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchFieldException e) {
             throw new RuntimeException(e.getMessage());
         }
-        return entity;
     }
 
     private List<Object> getParams(List<Field> fieldList, T entity) {
